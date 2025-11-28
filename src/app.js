@@ -14,6 +14,10 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+app.get("/", (req, res) => {
+    res.send("API funcionando correctamente 🚀");
+});
+
 // Rutas activas
 app.use("/api/admins", adminRoutes);
 app.use("/api/productos", productoRoutes);
