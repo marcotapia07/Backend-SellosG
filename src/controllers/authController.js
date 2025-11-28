@@ -23,10 +23,11 @@ const generarToken = (id, rol) => {
 // En authController.js
 
 export const login = async (req, res) => {
+
   const { correo, password } = req.body;
   let usuario = null;
   let rol = null;
-
+  console.log("Body recibido:", req.body);
   try {
     // 1. Buscar ADMIN
     usuario = await Admin.findOne({ correo });
