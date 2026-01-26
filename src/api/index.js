@@ -6,15 +6,19 @@ let ready = false;
 
 export default async function handler(req, res) {
   try {
+    console.log("Handler ejecutado");
+
     if (!ready) {
+      console.log("Conectando a Mongo...");
       await connectDB();
       await seedDefaultAdmin();
       ready = true;
+      console.log("Mongo conectado y seed listo");
     }
 
     return app(req, res);
   } catch (error) {
-    console.error("Error handler:", error.message);
+    console.error("Error en handler:", error.message);
     res.status(500).json({ message: "Error del servidor" });
   }
 }
