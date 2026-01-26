@@ -18,15 +18,24 @@ const router = express.Router();
 
 // Crear carpeta de uploads/pedidos si no existe
 const uploadDir = 'uploads/pedidos';
-if (!fs.existsSync(uploadDir)) {
-  fs.mkdirSync(uploadDir, { recursive: true });
+
+if (process.env.NODE_ENV !== "production") {
+  if (!fs.existsSync(uploadDir)) {
+    fs.mkdirSync(uploadDir, { recursive: true });
+  }
 }
+
 
 // Configuración de multer para archivos de pedidos
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, uploadDir);
+    if (process.env.NODE_ENV === "production") {
+      cb(new Error("Uploads no habilitados en producción"), null);
+    } else {
+      cb(null, uploadDir);
+    }
   },
+
   filename: function (req, file, cb) {
     const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
     cb(null, 'pedido-' + uniqueSuffix + path.extname(file.originalname));
