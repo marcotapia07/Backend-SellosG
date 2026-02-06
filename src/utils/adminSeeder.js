@@ -25,7 +25,7 @@ export const seedDefaultAdmin = async () => {
 
             console.log('Administrador por defecto creado: administrador@gmail.com / admin123');
         } else {
-            console.log('✅ Administrador por defecto ya existe. Omite el seeding.');
+            console.log('Administrador por defecto ya existe. Omite el seeding.');
         }
     } catch (error) {
         console.error('Error al inicializar el administrador por defecto:', error.message);

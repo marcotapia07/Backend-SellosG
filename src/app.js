@@ -19,7 +19,7 @@ dotenv.config();
 const app = express();
 
 const allowedOrigins = [
-  "https://sellos-g.vercel.app",
+  "https://backend-sellos-g.vercel.app/",
   "https://sellos-g-frontend-k62m.vercel.app",
   "http://localhost:5173",
   "http://localhost:3000",
