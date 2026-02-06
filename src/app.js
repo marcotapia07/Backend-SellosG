@@ -60,4 +60,13 @@ app.get("/", (req, res) => {
   res.send("Backend Sellos-G activo");
 });
 
+/* Middleware de manejo de errores global */
+app.use((err, req, res, next) => {
+  console.error("=> Error Detectado:", err.stack);
+  res.status(500).json({
+    message: "Error interno del servidor",
+    error: process.env.NODE_ENV === "production" ? "Consulte logs" : err.message
+  });
+});
+
 export default app;

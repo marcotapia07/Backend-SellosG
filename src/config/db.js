@@ -1,29 +1,19 @@
 import mongoose from "mongoose";
 
-let isConnected = false;
-
 export const connectDB = async () => {
-  // Si ya hay una conexión activa, no intentar conectar de nuevo
-  if (isConnected || mongoose.connection.readyState === 1) {
-    console.log("=> [MongoDB] Usando conexión existente");
-    return;
-  }
-
   try {
-    console.log("=> [MongoDB] Intentando nueva conexión...");
-    
-    // IMPORTANTE: Si no hay conexión, que no guarde comandos en cola (evita el buffering timeout)
-    mongoose.set('bufferCommands', false);
+    console.log("MONGO_URI existe:", !!process.env.MONGO_URI);
+    console.log("MONGO_URI inicia con:", process.env.MONGO_URI?.slice(0, 25));
 
-    const db = await mongoose.connect(process.env.MONGO_URI, {
-      serverSelectionTimeoutMS: 5000, // Máximo 5 segundos para encontrar el clúster
-      heartbeatFrequencyMS: 2000,    // Revisar salud de conexión cada 2s
-    });
+    if (!process.env.MONGO_URI) {
+      throw new Error("MONGO_URI no existe en el entorno");
+    }
 
-    isConnected = db.connections[0].readyState === 1;
-    console.log("=> [MongoDB] Conexión establecida exitosamente");
+  await mongoose.connect(process.env.MONGO_URI);
+    console.log("Conectado a MongoDB");
   } catch (error) {
-    console.error("=> [MongoDB] Error de conexión:", error.message);
-    throw error; // Lanzar para que el handler lo capture
+    console.error("Error MongoDB:", error.message);
+    throw error;
   }
+
 };

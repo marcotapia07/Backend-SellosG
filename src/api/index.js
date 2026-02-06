@@ -2,32 +2,23 @@ import app from "../src/app.js";
 import { connectDB } from "../src/config/db.js";
 import { seedDefaultAdmin } from "../src/utils/adminSeeder.js";
 
-let seeded = false;
+let ready = false;
 
 export default async function handler(req, res) {
   try {
-    // 1. Conectar a la DB primero
-    await connectDB();
+    console.log("Handler ejecutado");
 
-    // 2. Ejecutar Seeder una sola vez
-    if (!seeded) {
-      console.log("=> [Vercel] Ejecutando verificación de administrador...");
+    if (!ready) {
+      console.log("Conectando a Mongo...");
+      await connectDB();
       await seedDefaultAdmin();
-      seeded = true;
+      ready = true;
+      console.log("Mongo conectado y seed listo");
     }
 
-    // 3. Pasar el control a Express
     return app(req, res);
-
   } catch (error) {
-    console.error("=> [Vercel] Error en la ejecución:", error.message);
-    
-    // Responder con JSON limpio para el frontend
-    if (!res.headersSent) {
-      return res.status(500).json({ 
-        error: "Database Connection Error",
-        message: error.message 
-      });
-    }
+    console.error("Error en handler:", error.message);
+    res.status(500).json({ message: "Error del servidor" });
   }
 }
