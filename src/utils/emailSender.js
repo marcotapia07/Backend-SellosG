@@ -1,12 +1,10 @@
-// src/utils/emailSender.js
-
 import sgMail from '@sendgrid/mail';
 import dotenv from "dotenv";
 dotenv.config();
 
 // Configurar SendGrid API Key
 if (!process.env.SENDGRID_API_KEY) {
-  console.error('⚠️ WARNING: SENDGRID_API_KEY no está configurada. Verifica tus variables de entorno.');
+  console.error('WARNING: SENDGRID_API_KEY no está configurada. Verifica tus variables de entorno.');
 } else {
   sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 }

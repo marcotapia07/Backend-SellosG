@@ -1,5 +1,3 @@
-// src/controllers/clienteController.js
-
 import Cliente from '../models/Cliente.js';
 import { sendVerificationEmail } from '../utils/emailSender.js';
 import crypto from 'crypto';
@@ -16,7 +14,7 @@ export const registrarCliente = async (req, res) => {
 
     // 2. Generar token de verificación
     const token = crypto.randomBytes(32).toString('hex');
-    const expiration = Date.now() + 3600000; // 1 hora
+    const expiration = Date.now() + 3600000;
 
     // 3. Crear cliente con los nuevos campos
     const cliente = new Cliente({
@@ -41,7 +39,6 @@ export const registrarCliente = async (req, res) => {
     } catch (emailError) {
       console.error('[REGISTRO] Error enviando email:', emailError.message);
       
-      // Si no hay API key de Resend, dar instrucción clara
       if (!process.env.RESEND_API_KEY) {
         await Cliente.findByIdAndDelete(cliente._id);
         return res.status(500).json({ 
@@ -49,8 +46,7 @@ export const registrarCliente = async (req, res) => {
           error: 'Contacta al administrador del sistema.'
         });
       }
-      
-      // En desarrollo, devolver el token para debug
+    
       if (process.env.NODE_ENV === 'development') {
         const verificationLink = `${process.env.FRONTEND_URL}/verificar-email?token=${token}`;
         return res.status(201).json({
@@ -59,7 +55,6 @@ export const registrarCliente = async (req, res) => {
         });
       }
       
-      // En producción, fallar si no se puede enviar el correo
       await Cliente.findByIdAndDelete(cliente._id);
       return res.status(500).json({ 
         message: 'Error al enviar el correo de verificación. Por favor, intenta registrarte nuevamente.'
@@ -72,8 +67,6 @@ export const registrarCliente = async (req, res) => {
   }
 };
 
-
-// 🔹 Obtener todos los clientes
 export const obtenerClientes = async (req, res) => {
   try {
     const clientes = await Cliente.find();
@@ -83,7 +76,6 @@ export const obtenerClientes = async (req, res) => {
   }
 };
 
-// Actualizar cliente (solo admin)
 export const actualizarCliente = async (req, res) => {
   try {
     const { id } = req.params;
@@ -104,7 +96,6 @@ export const actualizarCliente = async (req, res) => {
   }
 };
 
-// Eliminar cliente (solo admin)
 export const eliminarCliente = async (req, res) => {
   try {
     const { id } = req.params;
@@ -117,7 +108,6 @@ export const eliminarCliente = async (req, res) => {
   }
 };
 
-// Actualizar perfil propio (cliente autenticado)
 export const actualizarPerfilCliente = async (req, res) => {
   try {
     const clienteId = req.usuario?._id || req.usuario?.id;
@@ -138,11 +128,11 @@ export const actualizarPerfilCliente = async (req, res) => {
       cliente.correo = correo;
       cliente.verificado = false;
       cliente.verificacionToken = crypto.randomBytes(32).toString('hex');
-      cliente.verificacionExpira = Date.now() + 3600000; // 1h
+      cliente.verificacionExpira = Date.now() + 3600000; 
     }
 
     if (nombre) cliente.nombre = nombre;
-    if (password) cliente.password = password; // se hashea en pre('save')
+    if (password) cliente.password = password; 
     await cliente.save();
 
     if (emailChanged) {

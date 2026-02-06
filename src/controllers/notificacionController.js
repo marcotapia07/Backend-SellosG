@@ -33,7 +33,6 @@ export const marcarLeida = async (req, res) => {
     const notificacion = await Notificacion.findById(req.params.id);
     if (!notificacion) return res.status(404).json({ msg: "Notificación no encontrada" });
 
-    // Permitir solo al dueño o a admin
     if (
       req.usuario.rol !== 'administrador' &&
       notificacion.destinatario?.toString() !== req.usuario._id.toString()

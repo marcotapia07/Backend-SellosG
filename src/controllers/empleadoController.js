@@ -1,5 +1,3 @@
-// controllers/empleadoController.js
-
 import Empleado from "../models/Empleado.js";
 import Admin from "../models/Admin.js";
 import Cliente from "../models/Cliente.js";
@@ -19,7 +17,7 @@ export const crearEmpleado = async (req, res) => {
 
         // Crear token de verificación
         const token = crypto.randomBytes(32).toString("hex");
-        const expiration = Date.now() + 3600000; // 1 hora
+        const expiration = Date.now() + 3600000; 
 
         const empleado = new Empleado({
             nombre,
@@ -32,7 +30,6 @@ export const crearEmpleado = async (req, res) => {
 
         await empleado.save();
 
-        // Enviar correo
         await sendVerificationEmail(correo, token, nombre);
 
         res.status(201).json({
@@ -44,7 +41,7 @@ export const crearEmpleado = async (req, res) => {
     }
 };
 
-// Obtener todos los empleados
+
 export const obtenerEmpleados = async (req, res) => {
     try {
         const empleados = await Empleado.find().select("-password");
@@ -55,7 +52,6 @@ export const obtenerEmpleados = async (req, res) => {
     }
 };
 
-// Actualizar empleado
 export const actualizarEmpleado = async (req, res) => {
     const { id } = req.params;
 
@@ -67,7 +63,7 @@ export const actualizarEmpleado = async (req, res) => {
     }
 };
 
-// Eliminar empleado
+
 export const eliminarEmpleado = async (req, res) => {
     const { id } = req.params;
 
@@ -79,7 +75,6 @@ export const eliminarEmpleado = async (req, res) => {
     }
 };
 
-// Actualizar perfil propio del empleado
 export const actualizarPerfilEmpleado = async (req, res) => {
     try {
         const empleadoId = req.usuario?._id || req.usuario?.id;

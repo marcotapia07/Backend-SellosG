@@ -1,5 +1,3 @@
-// src/models/Admin.js (CORREGIDO)
-
 import mongoose from "mongoose";
 import bcrypt from "bcryptjs";
 
@@ -38,7 +36,6 @@ const adminSchema = new mongoose.Schema({
   }
 });
 
-// 🔑 AHORA ESTÁN AQUÍ: Definición del middleware 'pre'
 adminSchema.pre("save", async function (next) {
   if (!this.isModified("password")) return next();
   const salt = await bcrypt.genSalt(10);
@@ -46,7 +43,6 @@ adminSchema.pre("save", async function (next) {
   next();
 });
 
-// 🔑 AHORA ESTÁN AQUÍ: Definición del método 'compararPassword'
 adminSchema.methods.compararPassword = async function (passwordIngresado) {
   return await bcrypt.compare(passwordIngresado, this.password);
 };

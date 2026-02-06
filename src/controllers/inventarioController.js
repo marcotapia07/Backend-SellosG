@@ -24,7 +24,6 @@ const registrarMovimiento = async (materialId, cantidadAnterior, cantidadNueva, 
 
 const crearNotificacionStock = async (material) => {
   try {
-    // Evitar duplicados no leídos para el mismo material
     const existe = await Notificacion.findOne({
       tipo: "stock",
       "data.materialId": material._id,
@@ -94,7 +93,6 @@ export const crearMaterial = async (req, res) => {
       stockInicial: cantidad || 0
     });
 
-    // Registrar movimiento inicial si hay cantidad
     if (cantidad > 0) {
       await registrarMovimiento(material._id, 0, cantidad, "Stock inicial");
     }
@@ -192,15 +190,12 @@ export const obtenerReporteInventario = async (req, res) => {
     const fin = new Date(fechaFin);
     fin.setHours(23, 59, 59, 999);
 
-    // Obtener TODOS los materiales
     const materiales = await Inventario.find();
 
-    // Obtener movimientos en el rango
     const movimientos = await MovimientoInventario.find({
       createdAt: { $gte: inicio, $lte: fin }
     }).populate("material");
 
-    // Agrupar movimientos por material
     const movimientosPorMaterial = {};
     for (const mov of movimientos) {
       if (!mov.material) continue;
@@ -220,17 +215,14 @@ export const obtenerReporteInventario = async (req, res) => {
       }
     }
 
-    // Generar reporte para cada material
     const reporte = materiales.map((material) => {
       const materialId = material._id.toString();
       const movs = movimientosPorMaterial[materialId] || { salidas: 0, entradas: 0 };
       const estaBajo = material.cantidad <= material.stockMinimo;
       
-      // Calcular salidas totales: stockInicial - stockActual
       const stockInicial = material.stockInicial || 0;
       const salidasTotales = Math.max(0, stockInicial - material.cantidad);
       
-      // Alerta activada si está actualmente en bajo stock
       const alertaActivada = estaBajo;
 
       return {

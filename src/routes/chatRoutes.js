@@ -12,7 +12,6 @@ import {
 
 const router = express.Router();
 
-// Configuración de multer para adjuntos de chat
 const uploadDir = path.resolve("uploads/chat");
 if (!fs.existsSync(uploadDir)) {
   fs.mkdirSync(uploadDir, { recursive: true });

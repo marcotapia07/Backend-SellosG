@@ -1,4 +1,3 @@
-// src/models/CompanySettings.js
 import mongoose from 'mongoose';
 
 const companySettingsSchema = new mongoose.Schema({
@@ -12,13 +11,11 @@ const companySettingsSchema = new mongoose.Schema({
   direccion: { type: String, default: 'San Salvador, El Salvador' },
   logoUrl: { type: String, default: '' },
   tagline: { type: String, default: 'Sellos y Publicidad desde 2015' },
-  // Solo debe haber un documento de configuración
   _singleton: { type: Boolean, default: true, unique: true }
 }, { 
   timestamps: true 
 });
 
-// Asegurar que solo exista un documento
 companySettingsSchema.pre('save', async function(next) {
   this._singleton = true;
   next();

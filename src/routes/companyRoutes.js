@@ -1,4 +1,3 @@
-// src/routes/companyRoutes.js
 import express from 'express';
 import { obtenerConfiguracion, actualizarConfiguracion } from '../controllers/companyController.js';
 import { protegerRuta, soloAdmin } from '../middlewares/authMiddleware.js';

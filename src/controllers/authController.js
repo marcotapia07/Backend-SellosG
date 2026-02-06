@@ -2,13 +2,9 @@ import Admin from '../models/Admin.js';
 import Empleado from '../models/Empleado.js';
 import Cliente from '../models/Cliente.js';
 import jwt from "jsonwebtoken";
-import bcrypt from "bcryptjs"; // Necesario para hashear si se actualiza la contraseña
-import nodemailer from "nodemailer"; // Necesario para la recuperación de contraseña
-
-// 🚀 CORRECCIÓN 1: Importar randomBytes directamente de 'crypto'
+import bcrypt from "bcryptjs"; 
+import nodemailer from "nodemailer"; 
 import { randomBytes } from 'crypto';
-
-// 🚀 CORRECCIÓN 2: Importar la utilidad de envío de correo (Buenas Prácticas)
 import { sendPasswordResetEmail } from '../utils/emailSender.js';
 import { sendEmployeeWelcomeEmail } from '../utils/emailSender.js';
 
@@ -17,11 +13,7 @@ const generarToken = (id, rol) => {
   return jwt.sign({ id, rol }, process.env.JWT_SECRET, { expiresIn: "1d" });
 };
 
-// ====================================================================
-// --- 1. Iniciar Sesión (Login) ---
-// ====================================================================
-// En authController.js
-
+// Iniciar Sesión (Login) 
 export const login = async (req, res) => {
   const { correo, password } = req.body;
   let usuario = null;
@@ -87,7 +79,7 @@ export const login = async (req, res) => {
 
 
 export const verificarEmail = async (req, res) => {
-  // Aceptamos token tanto por body como por query (por si el frontend envía de distinta forma)
+
   const token = req.body?.token || req.query?.token;
 
   if (!token) {
@@ -95,7 +87,7 @@ export const verificarEmail = async (req, res) => {
   }
 
   try {
-    // Intentar encontrar el usuario (Empleado o Cliente) cuyo token coincide y que no haya expirado
+    
     let usuario = await Empleado.findOne({
       verificacionToken: token,
       verificacionExpira: { $gt: Date.now() }
@@ -111,7 +103,7 @@ export const verificarEmail = async (req, res) => {
     }
 
     if (!usuario) {
-      // Para ayudar a depurar, verificamos si existe algún usuario con ese token (incluso expirado)
+    
       const posibleEmpleado = await Empleado.findOne({ verificacionToken: token });
       const posibleCliente = await Cliente.findOne({ verificacionToken: token });
 
@@ -143,10 +135,7 @@ export const verificarEmail = async (req, res) => {
   }
 };
 
-
-// ====================================================================
-// --- 2. Recuperación de Contraseña ---
-// ====================================================================
+// Recuperación de Contraseña
 export const solicitarRecuperacion = async (req, res) => {
   const { correo } = req.body;
 
@@ -155,23 +144,18 @@ export const solicitarRecuperacion = async (req, res) => {
       await Admin.findOne({ correo }) ||
       await Cliente.findOne({ correo });
 
-    // Por seguridad: Siempre respondemos igual
     if (!usuario) {
       return res.json({ msg: "Si el correo existe, enviaremos instrucciones." });
     }
 
-    // Usando randomBytes importado correctamente
     const token = randomBytes(32).toString("hex");
     const expiration = Date.now() + 3600000;
-
     usuario.resetPasswordToken = token;
     usuario.resetPasswordExpira = expiration;
     await usuario.save();
 
-    // 🚀 CORRECCIÓN 3: Usar la función de utilidad para enviar el correo
     const nombreUsuario = usuario.nombre || 'Usuario';
     await sendPasswordResetEmail(usuario.correo, token, nombreUsuario);
-
 
     res.json({ msg: "Correo enviado." });
   } catch (e) {
@@ -180,9 +164,7 @@ export const solicitarRecuperacion = async (req, res) => {
   }
 };
 
-// ====================================================================
-// --- 3. Restablecer Contraseña ---
-// ====================================================================
+// Restablecer Contraseña
 export const restablecerContraseña = async (req, res) => {
   const { token } = req.params;
   const { nuevaContraseña } = req.body;
@@ -217,10 +199,7 @@ export const restablecerContraseña = async (req, res) => {
   }
 };
 
-
-// ====================================================================
-// --- 4. Actualizar Contraseña (Desde perfil, requiere autenticación) ---
-// ====================================================================
+// Actualizar Contraseña (Desde perfil, requiere autenticación)
 export const actualizarContraseña = async (req, res) => {
   const currentPassword = req.body?.contraseñaActual || req.body?.currentPassword;
   const newPassword = req.body?.nuevaContraseña || req.body?.newPassword;
@@ -244,13 +223,12 @@ export const actualizarContraseña = async (req, res) => {
   const coincide = await usuario.compararPassword(currentPassword);
   if (!coincide) return res.status(400).json({ msg: "La contraseña actual es incorrecta" });
 
-  usuario.password = newPassword; // se hashea en el pre('save')
+  usuario.password = newPassword;
   await usuario.save();
 
   res.json({ msg: "Contraseña actualizada", rol });
 };
 
-// Endpoint de ayuda para enviar un correo de verificación de prueba (solo en development)
 export const sendTestEmail = async (req, res) => {
   if (process.env.NODE_ENV !== 'development') {
     return res.status(403).json({ msg: 'Endpoint disponible solo en entorno de desarrollo.' });
@@ -269,7 +247,6 @@ export const sendTestEmail = async (req, res) => {
   }
 };
 
-// Reenviar token de verificación a un correo (empleado o cliente)
 export const resendVerification = async (req, res) => {
   const { correo } = req.body;
   if (!correo) return res.status(400).json({ msg: 'Correo requerido' });
@@ -280,13 +257,12 @@ export const resendVerification = async (req, res) => {
     if (usuario.verificado) return res.status(400).json({ msg: 'Usuario ya verificado' });
 
     const token = randomBytes(32).toString('hex');
-    const expiration = Date.now() + 3600000; // 1 hora
+    const expiration = Date.now() + 3600000; 
 
     usuario.verificacionToken = token;
     usuario.verificacionExpira = expiration;
     await usuario.save();
 
-    // Enviar el correo según tipo (Empleado -> sendEmployeeWelcomeEmail, Cliente -> sendVerificationEmail)
     if (usuario.rol === 'empleado') {
       await sendEmployeeWelcomeEmail(correo, token, usuario.nombre || 'Empleado');
     } else {

@@ -1,8 +1,6 @@
 import Producto from "../models/Producto.js";
 import Categoria from "../models/Categoria.js";
 
-// ========== CATEGORÍAS ==========
-
 // Crear categoría
 export const crearCategoria = async (req, res) => {
   try {
@@ -67,23 +65,17 @@ export const eliminarCategoria = async (req, res) => {
       return res.status(404).json({ msg: "Categoría no encontrada" });
     }
 
-    // Opcional: eliminar productos asociados
-    // await Producto.deleteMany({ categoria: id });
-
     res.json({ msg: "Categoría eliminada correctamente" });
   } catch (error) {
     res.status(500).json({ msg: error.message });
   }
 };
 
-// ========== PRODUCTOS ==========
-
 // Crear producto
 export const crearProducto = async (req, res) => {
   try {
     const { nombre, descripcion, categoria, precioBase, precioActual, estado, imagenUrl, descuento, fechaInicioPromocion, fechaFinPromocion } = req.body;
 
-    // Validar que la categoría exista (solo si se proporciona)
     if (categoria && categoria.trim() !== "") {
       try {
         const catExiste = await Categoria.findById(categoria);
@@ -98,12 +90,10 @@ export const crearProducto = async (req, res) => {
       }
     }
 
-    // Validar imagen base64
     if (imagenUrl && imagenUrl.length > 5 * 1024 * 1024) {
       return res.status(400).json({ msg: "La imagen no debe exceder 5MB" });
     }
 
-    // Determinar si tiene promoción
     const tienePromocion = descuento && parseFloat(descuento) > 0 && fechaInicioPromocion && fechaFinPromocion;
 
     console.log("Creando producto con datos:", {
@@ -201,7 +191,6 @@ export const actualizarProducto = async (req, res) => {
     const { id } = req.params;
     const { nombre, descripcion, categoria, precioBase, precioActual, estado, imagenUrl, descuento, fechaInicioPromocion, fechaFinPromocion } = req.body;
 
-    // Validar categoría si se proporciona
     if (categoria && categoria.trim() !== "") {
       try {
         const catExiste = await Categoria.findById(categoria);
@@ -216,7 +205,7 @@ export const actualizarProducto = async (req, res) => {
       }
     }
 
-    // Determinar si tiene promoción
+
     const tienePromocion = descuento && parseFloat(descuento) > 0 && fechaInicioPromocion && fechaFinPromocion;
 
     console.log("Actualizando producto con datos:", {

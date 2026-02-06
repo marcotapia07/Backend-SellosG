@@ -3,9 +3,6 @@ import Admin from "../models/Admin.js";
 import Empleado from "../models/Empleado.js";
 import Cliente from "../models/Cliente.js";
 
-
-
-// Middleware general para verificar token
 export const protegerRuta = async (req, res, next) => {
   const token = req.headers.authorization?.split(" ")[1];
   if (!token) return res.status(401).json({ msg: "Token no proporcionado" });
@@ -15,15 +12,12 @@ export const protegerRuta = async (req, res, next) => {
     const userId = decoded.id;
     let usuario;
 
-    // 1. Intentar buscar en Administradores
     usuario = await Admin.findById(userId).select("-password");
 
-    // 2. Si no se encuentra, buscar en Empleados
     if (!usuario) {
       usuario = await Empleado.findById(userId).select("-password");
     }
 
-    // 3. Si no se encuentra, buscar en Clientes
     if (!usuario) {
       usuario = await Cliente.findById(userId).select("-password");
     }

@@ -1,4 +1,3 @@
-// src/models/Empleado.js
 import mongoose from "mongoose";
 import bcrypt from "bcryptjs";
 
@@ -24,7 +23,6 @@ const empleadoSchema = new mongoose.Schema(
       type: String,
       default: "empleado",
     },
-    // Campos de verificación de email
     verificado: {
       type: Boolean,
       default: false,
@@ -37,7 +35,7 @@ const empleadoSchema = new mongoose.Schema(
       type: Date,
       default: null,
     },
-    // Campos para restablecimiento de contraseña
+
     resetPasswordToken: {
       type: String,
       default: null,
@@ -50,7 +48,6 @@ const empleadoSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-// Formato de salida JSON: exponer 'id' y ocultar campos sensibles
 empleadoSchema.set('toJSON', {
   virtuals: true,
   versionKey: false,
@@ -66,7 +63,6 @@ empleadoSchema.set('toJSON', {
   }
 });
 
-// Hashear contraseña antes de guardar
 empleadoSchema.pre("save", async function (next) {
   if (!this.isModified("password")) return next();
 
@@ -76,7 +72,6 @@ empleadoSchema.pre("save", async function (next) {
   next();
 });
 
-// Método para comparar contraseña
 empleadoSchema.methods.compararPassword = async function (passwordIngresado) {
   return bcrypt.compare(passwordIngresado, this.password);
 };

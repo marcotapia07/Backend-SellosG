@@ -26,7 +26,6 @@ conversacionSchema.set("toJSON", {
   transform: (_doc, ret) => {
     ret.id = ret._id;
     delete ret._id;
-    // Añadir id derivado a cada participante para el frontend
     if (Array.isArray(ret.participantes)) {
       ret.participantes = ret.participantes.map((p) => ({
         ...p,

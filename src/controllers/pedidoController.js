@@ -7,7 +7,6 @@ import Conversacion from "../models/Conversacion.js";
 import Mensaje from "../models/Mensaje.js";
 import Admin from "../models/Admin.js";
 
-// Crear pedido (Admin)
 export const crearPedido = async (req, res) => {
   try {
     const { cliente, empleadoAsignado, productos, notaEmpleado } = req.body;
@@ -18,7 +17,7 @@ export const crearPedido = async (req, res) => {
       return res.status(400).json({ msg: "Cliente no encontrado" });
     }
 
-    // Validar empleado si se asigna
+    // Validar empleado
     if (empleadoAsignado) {
       const empleadoExiste = await Empleado.findById(empleadoAsignado);
       if (!empleadoExiste) {
@@ -26,7 +25,6 @@ export const crearPedido = async (req, res) => {
       }
     }
 
-    // Calcular subtotales y total
     let total = 0;
     const productosConPrecio = [];
 
@@ -106,7 +104,7 @@ export const obtenerPedidos = async (req, res) => {
 // Obtener pedidos asignados a un empleado
 export const obtenerPedidosEmpleado = async (req, res) => {
   try {
-    const empleadoId = req.usuario.id; // Del token JWT
+    const empleadoId = req.usuario.id; 
     
     const pedidos = await Pedido.find({ empleadoAsignado: empleadoId })
       .populate("cliente", "nombre correo telefono")
@@ -168,7 +166,6 @@ export const actualizarPedido = async (req, res) => {
       .populate("empleadoAsignado", "nombre apellido")
       .populate("productos.producto", "nombre precioActual imagenUrl");
 
-    // Crear notificación si se asigna a un empleado (y no estaba asignado antes)
     if (empleadoAsignado && (!pedidoOriginal.empleadoAsignado || pedidoOriginal.empleadoAsignado.toString() !== empleadoAsignado)) {
       try {
         const clienteData = await Cliente.findById(cliente || pedidoOriginal.cliente);
@@ -208,7 +205,6 @@ export const actualizarEstadoPedido = async (req, res) => {
       return res.status(404).json({ msg: "Pedido no encontrado" });
     }
 
-    // Verificar que el pedido esté asignado a este empleado
     if (pedido.empleadoAsignado?.toString() !== empleadoId) {
       return res.status(403).json({ msg: "No tienes permiso para actualizar este pedido" });
     }
@@ -216,7 +212,6 @@ export const actualizarEstadoPedido = async (req, res) => {
     pedido.estado = estado;
     await pedido.save();
 
-    // Crear notificación para el cliente sobre el cambio de estado
     try {
       const Notificacion = (await import('../models/Notificacion.js')).default;
       await Notificacion.create({
@@ -285,10 +280,8 @@ export const crearPedidoPersonalizado = async (req, res) => {
       return res.status(400).json({ msg: "Todos los campos son requeridos" });
     }
 
-    // Obtener archivo si existe
     let archivoReferencia = null;
     if (req.file) {
-      // La ruta del archivo subido por multer
       archivoReferencia = `/uploads/pedidos/${req.file.filename}`;
     }
 
@@ -306,20 +299,16 @@ export const crearPedidoPersonalizado = async (req, res) => {
 
     await nuevoPedido.save();
 
-    // Obtener cliente info
     const cliente = await Cliente.findById(clienteId);
 
-    // Buscar todos los administradores
     const admins = await Admin.find();
 
     if (admins.length === 0) {
       return res.status(500).json({ msg: "No hay administradores disponibles" });
     }
 
-    // Usar el primer administrador para la conversación
     const admin = admins[0];
 
-    // Buscar o crear conversación entre cliente y admin
     let conversacion = await Conversacion.findOne({
       'participantes.usuario': { $all: [clienteId, admin._id] }
     });
@@ -336,7 +325,6 @@ export const crearPedidoPersonalizado = async (req, res) => {
       await conversacion.save();
     }
 
-    // Crear mensaje con detalles del pedido
     const prioridadEmoji = {
       urgente: "🔴",
       normal: "🟡",
@@ -350,7 +338,6 @@ export const crearPedidoPersonalizado = async (req, res) => {
     mensajeTexto += `📝 Descripción:\n${descripcion}\n\n`;
     mensajeTexto += `🆔 Pedido #${nuevoPedido._id.toString().slice(-8).toUpperCase()}`;
 
-    // Determinar tipo de mensaje según si hay archivo
     let tipoMensaje = "texto";
     if (archivoReferencia) {
       tipoMensaje = "media";
@@ -368,12 +355,10 @@ export const crearPedidoPersonalizado = async (req, res) => {
 
     await nuevoMensaje.save();
 
-    // Actualizar conversación
     conversacion.ultimoMensaje = mensajeTexto.substring(0, 100);
     conversacion.actualizadoEn = new Date();
     await conversacion.save();
 
-    // Crear notificación para todos los admins
     for (const adminUsuario of admins) {
       try {
         await Notificacion.create({
@@ -394,7 +379,6 @@ export const crearPedidoPersonalizado = async (req, res) => {
       }
     }
 
-    // Retornar el mensaje creado para que se muestre en el chat
     const mensajePoblado = await Mensaje.findById(nuevoMensaje._id)
       .populate('remitente', 'nombre correo');
 

@@ -11,10 +11,9 @@ const pedidoSchema = new mongoose.Schema({
     ref: "Empleado",
     default: null
   },
-  // Nuevos campos para pedido personalizado
   tipoPedido: {
     type: String,
-    enum: ["productos", "personalizado"], // "productos" = pedido normal con productos, "personalizado" = solicitud de trabajo
+    enum: ["productos", "personalizado"], 
     default: "productos"
   },
   tipoTrabajo: {
@@ -32,7 +31,7 @@ const pedidoSchema = new mongoose.Schema({
     default: ""
   },
   archivoReferencia: {
-    type: String, // URL o ruta del archivo
+    type: String, 
     default: null
   },
   productos: [{

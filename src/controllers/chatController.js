@@ -81,7 +81,7 @@ const crearNotificacionMensaje = async ({ destinatarioId, remitenteNombre, desti
 
 export const enviarMensaje = async (req, res) => {
   try {
-    const { id } = req.params; // conversacion id
+    const { id } = req.params;
     const { mensaje, mediaUrl } = req.body;
 
     const conversacion = await Conversacion.findById(id);

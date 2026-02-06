@@ -1,6 +1,6 @@
 import Admin from "../models/Admin.js";
-import Empleado from "../models/Empleado.js"; // ← Importar Empleado
-import Cliente from "../models/Cliente.js";   // ← Importar Cliente
+import Empleado from "../models/Empleado.js"; 
+import Cliente from "../models/Cliente.js";  
 import Producto from "../models/Producto.js";
 import Pedido from "../models/Pedido.js";
 import bcrypt from "bcryptjs";
@@ -8,9 +8,7 @@ import jwt from "jsonwebtoken";
 import crypto from "crypto";
 import { sendEmployeeWelcomeEmail } from '../utils/emailSender.js';
 
-// --------------------------
 // LOGIN ADMIN
-// --------------------------
 export const loginAdmin = async (req, res) => {
   const { correo, password } = req.body;
 
@@ -24,9 +22,7 @@ export const loginAdmin = async (req, res) => {
   res.json({ msg: "Login exitoso", token, rol: 'administrador' });
 };
 
-// --------------------------
 // CRUD ADMINISTRADORES
-// --------------------------
 export const getAdmins = async (req, res) => {
   const admins = await Admin.find().select("-password");
   res.json(admins);
@@ -73,9 +69,7 @@ export const deleteAdmin = async (req, res) => {
   res.json({ msg: "Administrador eliminado correctamente" });
 };
 
-// --------------------------
 // PERFIL PROPIO DE ADMIN
-// --------------------------
 export const updateAdminProfile = async (req, res) => {
   try {
     const adminId = req.usuario?._id || req.usuario?.id;
@@ -119,9 +113,7 @@ export const updateAdminProfile = async (req, res) => {
   }
 };
 
-// --------------------------
 // GESTIÓN DE EMPLEADOS
-// --------------------------
 export const listarEmpleados = async (req, res) => {
   try {
     const empleados = await Empleado.find().select("-password");
@@ -231,9 +223,7 @@ export const eliminarEmpleado = async (req, res) => {
   }
 };
 
-// --------------------------
 // REPORTES
-// --------------------------
 export const generarReporteVentas = async (req, res) => {
   try {
     const pedidos = await Pedido.find()
@@ -286,7 +276,6 @@ export const exportarReporteCSV = async (req, res) => {
 
     const usuarios = [...empleados, ...clientes];
 
-    // Aquí podrías usar una librería como json2csv
     const parser = new Parser({ fields: ["nombre", "correo", "rol", "edad"] });
     const csv = parser.parse(usuarios);
 

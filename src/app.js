@@ -18,7 +18,6 @@ dotenv.config();
 
 const app = express();
 
-/* CORS */
 const allowedOrigins = [
   "https://sellos-g.vercel.app",
   "https://sellos-g-frontend-k62m.vercel.app",
@@ -40,7 +39,6 @@ app.use(
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 
-/* uploads solo en local */
 if (process.env.NODE_ENV !== "production") {
   app.use("/uploads", express.static(path.resolve("uploads")));
 }

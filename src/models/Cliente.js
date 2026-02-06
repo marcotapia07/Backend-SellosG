@@ -34,10 +34,9 @@ const clienteSchema = new mongoose.Schema(
       default: "cliente",
     },
 
-    // ✅ Campos de verificación de email
     verificado: {
       type: Boolean,
-      default: false, // El usuario NO está verificado al crear su cuenta
+      default: false, 
     },
 
     verificacionToken: {
@@ -50,7 +49,6 @@ const clienteSchema = new mongoose.Schema(
       default: null,
     },
 
-    // ✅ Campos para restablecimiento de contraseña
     resetPasswordToken: {
       type: String,
       default: null,
@@ -64,7 +62,6 @@ const clienteSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-// Formato de salida JSON: exponer 'id' y ocultar campos sensibles
 clienteSchema.set('toJSON', {
   virtuals: true,
   versionKey: false,
@@ -80,7 +77,6 @@ clienteSchema.set('toJSON', {
   }
 });
 
-// 🔐 Hashear contraseña antes de guardar
 clienteSchema.pre("save", async function (next) {
   if (!this.isModified("password")) return next();
 
@@ -90,7 +86,6 @@ clienteSchema.pre("save", async function (next) {
   next();
 });
 
-// 🔐 Método para comparar contraseña
 clienteSchema.methods.compararPassword = async function (passwordIngresado) {
   return bcrypt.compare(passwordIngresado, this.password);
 };

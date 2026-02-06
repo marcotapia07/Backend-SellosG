@@ -25,8 +25,6 @@ if (process.env.NODE_ENV !== "production") {
   }
 }
 
-
-// Configuración de multer para archivos de pedidos
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
     if (process.env.NODE_ENV === "production") {
@@ -58,7 +56,6 @@ const upload = multer({
   }
 });
 
-// Rutas específicas (deben ir primero para evitar conflictos con /:id)
 // Cliente - ver sus propios pedidos
 router.get("/mis-pedidos", protegerRuta, obtenerMisPedidos);
 
