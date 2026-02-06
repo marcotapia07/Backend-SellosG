@@ -20,7 +20,7 @@ const app = express();
 
 const allowedOrigins = [
   "https://backend-sellos-g.vercel.app/",
-  "https://sellos-g-frontend-k62m.vercel.app",
+  "https://sellos-g.vercel.app/",
   "http://localhost:5173",
   "http://localhost:3000",
 ];
