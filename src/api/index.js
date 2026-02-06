@@ -6,27 +6,27 @@ let seeded = false;
 
 export default async function handler(req, res) {
   try {
-    // 1. Conectar a la base de datos (con nuestro nuevo db.js)
+    // 1. Conectar a la DB primero
     await connectDB();
 
-    // 2. Ejecutar Seeder si es necesario
+    // 2. Ejecutar Seeder una sola vez
     if (!seeded) {
-      console.log("=> Vercel: Verificando Seeder...");
+      console.log("=> [Vercel] Ejecutando verificación de administrador...");
       await seedDefaultAdmin();
       seeded = true;
     }
 
-    // 3. Ejecutar Express
+    // 3. Pasar el control a Express
     return app(req, res);
 
   } catch (error) {
-    console.error("=> Error en Handler:", error.message);
-    // IMPORTANTE: Responder con JSON claro para que el front no reciba basura
+    console.error("=> [Vercel] Error en la ejecución:", error.message);
+    
+    // Responder con JSON limpio para el frontend
     if (!res.headersSent) {
       return res.status(500).json({ 
-        status: "error",
-        message: "Error de servidor/base de datos",
-        details: error.message 
+        error: "Database Connection Error",
+        message: error.message 
       });
     }
   }
