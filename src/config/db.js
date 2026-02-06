@@ -1,38 +1,31 @@
 import mongoose from "mongoose";
 
-// Variable global para mantener la conexión activa en Vercel
-let cachedConnection = null;
+// Variable global para mantener la conexión en el "warm-up" de Vercel
+let isConnected = false;
 
 export const connectDB = async () => {
-  // Si ya estamos conectados, usamos la conexión existente
-  if (mongoose.connection.readyState >= 1) {
-    console.log("=> Usando conexión existente");
-    return mongoose.connection;
-  }
-
-  // Si hay una promesa de conexión en curso, la esperamos
-  if (cachedConnection) {
-    console.log("=> Esperando a que la conexión actual termine...");
-    return cachedConnection;
+  // 1. Si ya estamos conectados, salimos rápido
+  if (isConnected || mongoose.connection.readyState === 1) {
+    console.log("=> MongoDB: Reutilizando conexión");
+    return;
   }
 
   try {
-    console.log("=> Iniciando nueva conexión a MongoDB...");
+    console.log("=> MongoDB: Intentando nueva conexión...");
     
-    // Configuraciones clave para evitar el buffering infinito
-    cachedConnection = mongoose.connect(process.env.MONGO_URI, {
-      serverSelectionTimeoutMS: 5000, // Máximo 5 segundos para encontrar el servidor
-      connectTimeoutMS: 10000,       // Máximo 10 segundos para establecer conexión
-      dbName: 'ssellos_g'            // Forzamos el nombre de la base de datos aquí
+    // IMPORTANTE: Desactivamos el buffering para que Mongoose no se quede esperando
+    // si la conexión falla, lanzará el error de inmediato.
+    mongoose.set('bufferCommands', false);
+
+    const db = await mongoose.connect(process.env.MONGO_URI, {
+      serverSelectionTimeoutMS: 5000, // No esperar más de 5s
+      dbName: 'ssellos_g',           // Forzamos el nombre aquí por si acaso
     });
 
-    const db = await cachedConnection;
-    console.log("=> Conexión exitosa a MongoDB");
-    return db;
-
+    isConnected = db.connections[0].readyState === 1;
+    console.log("=> MongoDB: ¡CONECTADO CON ÉXITO!");
   } catch (error) {
-    cachedConnection = null; // Limpiamos la cache si falla para poder reintentar
-    console.error("=> Error crítico en connectDB:", error.message);
-    throw error;
+    console.error("=> MongoDB: ERROR CRÍTICO DE CONEXIÓN:", error.message);
+    throw error; 
   }
 };
